@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    match /tools/{toolId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName','email','updatedAt'])
+        && request.resource.data.email == request.auth.token.email;
+      allow delete: if isAdmin();
+    }
+    match /suggestions/{id} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name','url','reason','status','createdAt'])
+        && request.resource.data.status == 'pending';
+      allow read, update, delete: if isAdmin();
+    }
+    match /ratings/{id} {
+      allow create, update: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.score is int
+        && request.resource.data.score >= 1 && request.resource.data.score <= 5;
+      allow read: if true;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+  }
+}
