@@ -395,3 +395,20 @@ O código e a identidade do projeto são mantidos por João Mesquita. A publica�
 **Responsável pelo projeto:** João Mesquita  
 **GitHub:** [@JEMesquita](https://github.com/JEMesquita)  
 **Repositório:** [JEMesquita/free-tools-2026](https://github.com/JEMesquita/free-tools-2026)
+
+
+## 17. Integração contínua — GitHub Actions + Firebase Hosting
+
+O workflow `.github/workflows/firebase-hosting.yml` valida Pull Requests e realiza build e deploy automático do Firebase Hosting em atualizações da branch `main`. A publicação depende da configuração de secrets e da conta de serviço.
+
+Consulte o guia completo: [GitHub Actions + Firebase Hosting](docs/DEPLOY_GITHUB_ACTIONS_FIREBASE.md).
+
+**Configuração obrigatória no GitHub — Settings > Secrets and variables > Actions:**
+
+- Variável `FIREBASE_PROJECT_ID`: identificador real do projeto Firebase.
+- Secret `FIREBASE_SERVICE_ACCOUNT`: JSON da conta de serviço dedicada ao deploy.
+- Secrets `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID` e `VITE_FIREBASE_APP_ID`: configuração do aplicativo Web.
+
+Após cadastrar esses valores, um push em `main` dispara build e publicação. Pull Requests executam somente validação de build. O workflow não publica regras ou Cloud Functions.
+
+Não compartilhe nem versione a chave JSON da conta de serviço. A URL nativa `https://PROJECT_ID.web.app` só estará disponível após um deploy bem-sucedido.
